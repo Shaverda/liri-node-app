@@ -8,13 +8,20 @@ const fs = require('fs');
 var command = process.argv[2];
 var parameter = process.argv[3];
 
-var init = () =>{
-	if (command === "my-tweets") { tweet_logger(); }
-	else if (command === "spotify-this-song") { spotify_search(); }
-	else if (command === "movie-this") { movie_search(); }
-	else if (command === "do-what-it-says") { file_reader(); }
-	else {
-		console.log("Not a valid liri parameter");
+var init = () => {
+	command_log(process.argv);
+
+	switch(command){
+		case "my-tweets": 
+			tweet_logger(); break;
+		case "spotify-this-song": 
+			spotify_search(); break;
+		case "movie-this":
+			movie_search(); break;
+		case "do-what-it-says":
+			file_reader(); break;
+		default:
+			console.log("Not a valid liri command");
 	}
 }
 var tweet_logger = () => {
@@ -46,7 +53,7 @@ var spotify_search = () => {
 }
 var movie_search = () => {
     var query_movie = parameter || "Mr. Nobody";
-    var query_url = `http://www.omdbapi.com/?t=${query_movie}&y=&plot=short&r=json`;
+    var query_url = `http://www.omdbapi.com/?t=${query_movie}&y=&plot=short&tomatoes=true&r=json`;
     request(query_url, function(error, response, body) {
     	body = JSON.parse(body);
         console.log(`Movie Title: ${body.Title}`);
@@ -57,21 +64,27 @@ var movie_search = () => {
         console.log(`Country: ${body.Country}`);
         console.log(`Movie Plot: ${body.Plot}`);
         console.log(`Actors: ${body.Actors}`);
+        console.log(`Rotten Tomatoes: ${body.tomatoRating}`);
+        console.log(`Rotten Tomatoes url: ${body.tomatoURL}`);
     })
 }
 
+var command_log = (data) => {
+	fs.appendFile('log.txt', data, (err) => {
+		if (err) throw err;
+		console.log("Appended to file.");
+	});
+}
+
 var file_reader = () => {
-	fs.readFile("./random.txt", function(error, data){
+	fs.readFile("./random.txt", (error, data) => {
 		if (error){
 			return console.log(error);
 		}
-		data = data.toString() .split(',');
-		
+		data = data.toString().split(',');
 		command = data[0];
 		parameter = data[1];
-
 		init();
-		//SHELBY FIX THIS SO THAT IT GETS CALLED
 	})
 }
 
