@@ -9,8 +9,9 @@ var command = process.argv[2];
 var parameter = process.argv[3];
 
 var init = () => {
-	command_log(process.argv);
-
+	if (parameter != undefined){ command_log("\n" + command + " "+ parameter);}
+	else {command_log("\n\n" + command);}
+	
 	switch(command){
 		case "my-tweets": 
 			tweet_logger(); break;
@@ -28,13 +29,17 @@ var tweet_logger = () => {
     const params = { screen_name: 'ShelbyHaverda' };
     var client = new twitter(keys.twitterKeys);
     var data = client.get('statuses/user_timeline', params, function(error, tweets) {
+    	var tweets_array = [];
         for (var i = 20; i > 0; i--) {
             if (tweets[i] == undefined) {
                 console.log(`Error at ${i}; no such tweet exists bro. Tweet more.`)
                 continue;
             }
-            console.log(`"${tweets[i].text}" on ${tweets[i].created_at.substr(0, 19)}`);
+            var data = `"${tweets[i].text}" on ${tweets[i].created_at.substr(0, 19)}`;
+            console.log(data);
+            tweets_array.push(data);
         }
+        command_log("\n" + tweets_array.toString());
     });
 }
 var spotify_search = () => {
@@ -45,10 +50,10 @@ var spotify_search = () => {
             console.log(`Error occurred: ${error}.`);
             return;
         }
-        console.log(`Artist: ${data.tracks.items[0].artists[0].name}`);
-        console.log(`Song Name: ${data.tracks.items[0].name}`);
-        console.log(`Song Preview: ${data.tracks.items[0].preview_url}`);
-        console.log(`Album: ${data.tracks.items[0].album.name}`);
+
+        var data = `Artist: ${data.tracks.items[0].artists[0].name}\nSong Name: ${data.tracks.items[0].name} \nSong Preview: ${data.tracks.items[0].preview_url} \nAlbum: ${data.tracks.items[0].album.name}`
+        console.log(data);
+        command_log(`\n${data}`);
     })
 }
 var movie_search = () => {
@@ -56,23 +61,15 @@ var movie_search = () => {
     var query_url = `http://www.omdbapi.com/?t=${query_movie}&y=&plot=short&tomatoes=true&r=json`;
     request(query_url, function(error, response, body) {
     	body = JSON.parse(body);
-        console.log(`Movie Title: ${body.Title}`);
-        console.log(`Movie Year: ${body.Year}`);
-        console.log(`IMDB Rating: ${body.imdbRating}`);
-        console.log(`Country: ${body.Country}`);
-        console.log(`Language(s): ${body.Language}`);
-        console.log(`Country: ${body.Country}`);
-        console.log(`Movie Plot: ${body.Plot}`);
-        console.log(`Actors: ${body.Actors}`);
-        console.log(`Rotten Tomatoes: ${body.tomatoRating}`);
-        console.log(`Rotten Tomatoes url: ${body.tomatoURL}`);
+    	var data = `Movie Title: ${body.Title} \nMovie Year: ${body.Year} \nIMDB Rating: ${body.imdbRating} \nCountry: ${body.Country} \nLanguage(s): ${body.Language} \nMovie Plot: ${body.Plot} \nActors: ${body.Actors} \nRotten Tomatoes: ${body.tomatoRating} \nRotten Tomatoes url: ${body.tomatoURL}`
+    	console.log(data);
+    	command_log(`\n${data}`);
     })
 }
 
 var command_log = (data) => {
 	fs.appendFile('log.txt', data, (err) => {
 		if (err) throw err;
-		console.log("Appended to file.");
 	});
 }
 
